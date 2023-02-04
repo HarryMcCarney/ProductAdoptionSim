@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Tracking.fs" />
+    <Compile Include="Logic.fs" />
+    <Compile Include="View.fs" />
+    <Compile Include="App.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Feliz.Plotly" Version="2.1.0" />
+    <PackageReference Include="Sutil" Version="2.*" />
+  </ItemGroup>
+</Project>
