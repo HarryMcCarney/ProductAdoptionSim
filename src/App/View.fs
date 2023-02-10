@@ -8,6 +8,7 @@ module View =
     open Population
     open State
     open PopulationTracker
+    open Sutil.Bulma
 
     let tableStyle =
         [ rule "table, th, td" [ Css.border (px 1, Feliz.borderStyle.dashed, "grey"); Css.tableLayoutFixed' ]
@@ -17,6 +18,8 @@ module View =
                 Css.border (px 2, Feliz.borderStyle.solid, "black")
                 Css.margin 5 ]
           rule "td" [ Css.height (em 4); Css.width (em 4) ] ]
+
+
 
     let adoptor =
         Html.div[Attr.style
@@ -42,10 +45,22 @@ module View =
                     Html.label
                         [ Html.input
                               [ type' "number"
+                                Bind.attr ("value", (fun (i) -> setNumberSimulations stateStore i))
+                                Attr.min 0
+                                Attr.max 100 ]
+                          Attr.style [ Css.marginTop (rem 1); Css.marginRight (rem 1) ]
+                          prop.text "Number of simulations" ] ]
+
+              Html.div
+                  [ class' "block"
+                    Html.label
+                        [ Html.input
+                              [ type' "number"
                                 Bind.attr ("value", (fun (i) -> setPeerPreasureThreshold stateStore i))
                                 Attr.min 0
                                 Attr.max 100 ]
-                          text "Peer Presure Threshold" ] ]
+                          Attr.style [ Css.marginTop (rem 1); Css.marginRight (rem 1) ]
+                          prop.text "Peer Presure Threshold" ] ]
 
               Html.div
                   [ class' "block"
@@ -55,7 +70,8 @@ module View =
                                 Bind.attr ("value", (fun (i) -> setPopulationSize i))
                                 Attr.min 0
                                 Attr.max 100 ]
-                          text "Population size" ] ]
+                          Attr.style [ Css.marginTop (rem 1); Css.marginRight (rem 1) ]
+                          prop.text "Population size" ] ]
 
               Html.div
                   [ class' "block"
@@ -65,7 +81,8 @@ module View =
                                 Bind.attr ("value", (fun (i) -> setMarketingSpend stateStore i))
                                 Attr.min 0
                                 Attr.max 100 ]
-                          text "Marketing spend" ] ]
+
+                          prop.text "Marketing spend" ] ]
 
               Bind.el (
                   stateStore |> Store.mapDistinct (fun sw -> sw["running"]),
@@ -73,22 +90,25 @@ module View =
                       if (isRunning = 1) then
                           Html.button
                               [ Attr.className "button"
-                                Attr.style [ Css.marginTop (rem 1) ]
-                                text "Stop"
-                                Ev.onClick (fun _ -> stopSimulation stateStore) ]
+                                Attr.style [ Css.marginTop (rem 1); Css.marginRight (rem 1) ]
+                                prop.text "Stop"
+                                Ev.onClick (fun _ -> stopSimulation stateStore)
+                                Bulma.color.isDanger ]
                       else
                           Html.button
                               [ Attr.className "button"
-                                Attr.style [ Css.marginTop (rem 1) ]
-                                text "Start"
-                                Ev.onClick (fun _ -> startSimulation stateStore) ]
+                                Attr.style [ Css.marginTop (rem 1); Css.marginRight (rem 1) ]
+                                prop.text "Start"
+                                Ev.onClick (fun _ -> startSimulation stateStore)
+                                Bulma.color.isSuccess ]
               )
               Html.button
                   [ Attr.className "button"
-                    Attr.style [ Css.marginTop (rem 1) ]
-                    text "Reset"
-                    Ev.onClick (fun _ -> resetSimulation stateStore) ]
-              Html.div [ Bind.el (stateStore, (fun t -> string t["ticks"] |> text)) ]
+                    Attr.style [ Css.marginTop (rem 1); Css.marginRight (rem 1) ]
+                    prop.text "Reset"
+                    Ev.onClick (fun _ -> resetSimulation stateStore)
+                    Bulma.color.isDark ]
+              Html.div [ Bind.el (stateStore, (fun t -> string t["ticks"] |> prop.text)) ]
 
               ]
 

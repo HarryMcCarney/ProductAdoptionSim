@@ -14,7 +14,8 @@ module State =
               "peopleCount", 100
               "adoptorStartCount", 0
               "running", 0
-              "ticks", 0 ]
+              "ticks", 0
+              "numnerSimulations", 12 ]
 
     let stateStore = Store.make (Init())
 
@@ -69,7 +70,10 @@ module Population =
         let adoptorStartCount = getState "adoptorStartCount"
         let colCount = getState "colCount"
         let rowCount = getState "rowCount"
-        Store.make (initalisePopulation [||] 12 peopleCount adoptorStartCount colCount rowCount)
+
+        Store.make (
+            initalisePopulation [||] (getState "numnerSimulations") peopleCount adoptorStartCount colCount rowCount
+        )
 
     let fetchPeople (people: array<Person>) r c =
         people
@@ -168,7 +172,10 @@ module Population =
         let adoptorStartCount = getState "adoptorStartCount"
         let colCount = getState "colCount"
         let rowCount = getState "rowCount"
-        Store.set peopleStore (initalisePopulation [||] 12 peopleCount adoptorStartCount colCount rowCount)
+
+        Store.set
+            peopleStore
+            (initalisePopulation [||] (getState "numnerSimulations") peopleCount adoptorStartCount colCount rowCount)
 
     let setPopulationSize i =
         stopSimulation stateStore
@@ -176,10 +183,19 @@ module Population =
         let adoptorStartCount = getState "adoptorStartCount"
         let colCount = getState "colCount"
         let rowCount = getState "rowCount"
-        Store.set peopleStore (initalisePopulation [||] 12 peopleCount adoptorStartCount colCount rowCount)
+
+        Store.set
+            peopleStore
+            (initalisePopulation [||] (getState "numnerSimulations") peopleCount adoptorStartCount colCount rowCount)
 
     let setPeerPreasureThreshold (state: IStore<Map<string, int>>) threshold =
         stopSimulation stateStore
 
         state
         <~= (fun m -> m.Change("peerPreasureThreshold", (fun _ -> Some threshold)))
+
+
+    let setNumberSimulations (state: IStore<Map<string, int>>) i =
+        stopSimulation stateStore
+
+        state <~= (fun m -> m.Change("numnerSimulations", (fun _ -> Some i)))
