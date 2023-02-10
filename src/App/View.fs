@@ -11,21 +11,21 @@ module View =
 
     let tableStyle =
         [ rule "table, th, td" [ Css.border (px 1, Feliz.borderStyle.dashed, "grey"); Css.tableLayoutFixed' ]
-          rule "table" [ Css.width (percent 100) ]
+          rule "table" [ Css.width (percent 25) ]
           rule "td" [ Css.height (em 5) ] ]
 
     let adoptor =
         Html.div[Attr.style
-                     "   height: 10px;
-                                width: 10px;
+                     "   height: 8px;
+                                width: 8px;
                                 background-color: green;
                                 border-radius: 50%;
                                 display: inline-block;"]
 
     let prospect =
         Html.div[Attr.style
-                     "   height: 10px;
-                                width: 10px;
+                     "   height: 8px;
+                                width: 8px;
                                 background-color: red;
                                 border-radius: 50%;
                                 display: inline-block;"]
@@ -88,24 +88,35 @@ module View =
                     Ev.onClick (fun _ -> resetSimulation stateStore) ]
               Html.div [ Bind.el (stateStore, (fun t -> string t["ticks"] |> text)) ]
 
-              Html.div
-                  [ Bind.el (
-                        peopleStore,
-                        fun ps ->
-                            let adopters =
-                                ps |> Array.filter (fun p -> p.Status = Population.Adoptor) |> Array.length
-
-                            let prospects =
-                                ps |> Array.filter (fun p -> p.Status = Population.Prospect) |> Array.length
-
-                            sprintf "Prospects: %i / Adoptors: %i" prospects adopters |> text
-                    )
-
-                    ]
-
-              Html.div [ Bind.el (chartStore, (fun t -> host (fun re -> Feliz.ReactDOM.render ((t[0]), re)))) ]
-
               ]
+
+    (*
+    let summaryStats
+              Html.div
+              [ Bind.el (
+                    peopleStore,
+                    fun ps ->
+                        let adopters =
+                            ps |> Array.filter (fun p -> p.Status = Population.Adoptor) |> Array.length
+
+                        let prospects =
+                            ps |> Array.filter (fun p -> p.Status = Population.Prospect) |> Array.length
+
+                        sprintf "Prospects: %i / Adoptors: %i" prospects adopters |> text
+                )
+
+                ]
+
+                *)
+
+
+    let chart =
+        Html.div
+            [ Bind.el (
+                  chartStore,
+                  (fun t -> Html.div (t |> Array.map (fun c -> host (fun re -> Feliz.ReactDOM.render (c, re)))))
+              ) ]
+
 
     let createRow rowNumber columns people =
         let cols =
@@ -117,8 +128,15 @@ module View =
 
         Html.tableRow cols
 
-    let generateGrid totalRows totalColumns people =
-        [ 1..totalRows ]
-        |> Seq.map (fun r -> createRow r totalColumns people)
-        |> Html.table
-        |> withStyle tableStyle
+    let generateGrid totalRows totalColumns grids =
+        Html.div (
+            grids
+            |> Array.map (fun (g, ps) ->
+                Html.div
+                    [ Attr.style "display: inline-block"
+                      ([ 1..totalRows ]
+                       |> Seq.map (fun r -> createRow r totalColumns ps)
+                       |> Html.table
+                       |> withStyle tableStyle) ])
+
+        )
