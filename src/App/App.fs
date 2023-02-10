@@ -1,4 +1,3 @@
-
 namespace AdoptionSim
 
 module Main =
@@ -9,15 +8,10 @@ module Main =
     open AdoptionSim.State
     open Sutil.DomHelpers
 
-        
-    Html.div [
-            Html.div [
-                        unsubscribeOnUnmount [ interval updateStore 500 ]
-                        Bind.el( peopleStore, fun ps -> generateGrid (getState "rowCount") (getState "colCount") ps) 
-                        ] 
-            Html.div [
-                        form
-                    ]
-    ]
-    |> Program.mountElement "adoption-sim" 
-
+    Html.div
+        [ Attr.style [ Css.marginLeft 5; Css.marginRight 5 ]
+          Html.div
+              [ unsubscribeOnUnmount [ interval updateStore 500 ]
+                Bind.el (peopleStore, (fun ps -> generateGrid (getState "rowCount") (getState "colCount") ps)) ]
+          Html.div [ form ] ]
+    |> Program.mountElement "adoption-sim"
