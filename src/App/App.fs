@@ -12,7 +12,7 @@ module Main =
     let grids =
         let divs =
             Html.div
-                [ Attr.style "display: inline-block"
+                [ Attr.style "display: flex"
                   unsubscribeOnUnmount [ interval updateStore 500 ]
                   Bind.el (peopleStore, (fun ps -> generateGrid (getState "rowCount") (getState "colCount") ps)) ]
 

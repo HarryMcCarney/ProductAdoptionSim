@@ -51,25 +51,25 @@ module Population =
     let rec initalisePopulation (grids: array<Grid>) (reqGrids: int) noPeople adoptorStartCount columns rows : Grid[] =
         let gridId = ((grids |> Array.length) + 1) |> GridId
 
-        let results =
-            [| 1..noPeople |]
-            |> Array.map (fun x ->
-                { Coordinates = rnd.Next(1, rows + 1), rnd.Next(1, columns + 1)
-                  Status = Prospect })
-            |> fun p -> gridId, p
-            |> fun a -> grids |> Array.append [| a |]
-
         if gId gridId <= reqGrids then
+            let results =
+                [| 1..noPeople |]
+                |> Array.map (fun x ->
+                    { Coordinates = rnd.Next(1, rows + 1), rnd.Next(1, columns + 1)
+                      Status = Prospect })
+                |> fun p -> gridId, p
+                |> fun a -> grids |> Array.append [| a |]
+
             initalisePopulation results reqGrids noPeople adoptorStartCount columns rows
         else
-            results
+            grids
 
     let peopleStore =
         let peopleCount = getState "peopleCount"
         let adoptorStartCount = getState "adoptorStartCount"
         let colCount = getState "colCount"
         let rowCount = getState "rowCount"
-        Store.make (initalisePopulation [||] 10 peopleCount adoptorStartCount colCount rowCount)
+        Store.make (initalisePopulation [||] 12 peopleCount adoptorStartCount colCount rowCount)
 
     let fetchPeople (people: array<Person>) r c =
         people
@@ -168,7 +168,7 @@ module Population =
         let adoptorStartCount = getState "adoptorStartCount"
         let colCount = getState "colCount"
         let rowCount = getState "rowCount"
-        Store.set peopleStore (initalisePopulation [||] 10 peopleCount adoptorStartCount colCount rowCount)
+        Store.set peopleStore (initalisePopulation [||] 12 peopleCount adoptorStartCount colCount rowCount)
 
     let setPopulationSize i =
         stopSimulation stateStore
@@ -176,7 +176,7 @@ module Population =
         let adoptorStartCount = getState "adoptorStartCount"
         let colCount = getState "colCount"
         let rowCount = getState "rowCount"
-        Store.set peopleStore (initalisePopulation [||] 10 peopleCount adoptorStartCount colCount rowCount)
+        Store.set peopleStore (initalisePopulation [||] 12 peopleCount adoptorStartCount colCount rowCount)
 
     let setPeerPreasureThreshold (state: IStore<Map<string, int>>) threshold =
         stopSimulation stateStore

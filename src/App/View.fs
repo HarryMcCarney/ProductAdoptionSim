@@ -11,26 +11,28 @@ module View =
 
     let tableStyle =
         [ rule "table, th, td" [ Css.border (px 1, Feliz.borderStyle.dashed, "grey"); Css.tableLayoutFixed' ]
-          rule "table" [ Css.width (percent 25) ]
-          rule "td" [ Css.height (em 5) ] ]
+          rule
+              "table"
+              [ Css.tableLayoutFixed'
+                Css.border (px 2, Feliz.borderStyle.solid, "black")
+                Css.margin 5 ]
+          rule "td" [ Css.height (em 4); Css.width (em 4) ] ]
 
     let adoptor =
         Html.div[Attr.style
                      "   height: 8px;
-                                width: 8px;
+                                width: 6px;
                                 background-color: green;
                                 border-radius: 50%;
                                 display: inline-block;"]
 
     let prospect =
         Html.div[Attr.style
-                     "   height: 8px;
-                                width: 8px;
+                     "   height: 6px;
+                                width: 6px;
                                 background-color: red;
                                 border-radius: 50%;
                                 display: inline-block;"]
-
-
 
 
     let form =
@@ -109,12 +111,15 @@ module View =
 
                 *)
 
-
     let chart =
         Html.div
             [ Bind.el (
                   chartStore,
-                  (fun t -> Html.div (t |> Array.map (fun c -> host (fun re -> Feliz.ReactDOM.render (c, re)))))
+                  (fun t ->
+                      Html.div (
+                          t
+                          |> Array.map (fun c -> Html.div (host (fun re -> Feliz.ReactDOM.render (c, re))))
+                      ))
               ) ]
 
 
@@ -129,14 +134,18 @@ module View =
         Html.tableRow cols
 
     let generateGrid totalRows totalColumns grids =
-        Html.div (
+
+        let s: seq<Core.SutilElement> = [ Attr.style "overflow: hidden;" ]
+
+        let divs =
             grids
             |> Array.map (fun (g, ps) ->
                 Html.div
-                    [ Attr.style "display: inline-block"
+                    [ Attr.style "float: left"
                       ([ 1..totalRows ]
                        |> Seq.map (fun r -> createRow r totalColumns ps)
                        |> Html.table
                        |> withStyle tableStyle) ])
 
-        )
+
+        Html.div (s |> Seq.append divs)

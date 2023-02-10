@@ -42,6 +42,32 @@ module PopulationTracker =
                   Adoptors = adoptors
                   Prospects = prospects })
 
+
+    let drawCombinedChart () =
+        let grids = records |> Seq.map (fun r -> r.GridId) |> Seq.distinct |> Seq.length
+
+        let lines =
+            [ 1..grids ]
+            |> List.map (fun i ->
+                let rs = records |> Seq.filter (fun x -> x.GridId = i)
+
+                traces.scatter
+                    [ scatter.x (rs |> Seq.sortBy (fun x -> x.Tick) |> Seq.map (fun x -> x.Tick))
+                      scatter.y (rs |> Seq.sortBy (fun x -> x.Tick) |> Seq.map (fun x -> x.Adoptors))
+                      scatter.mode.lines
+                      scatter.name "Lines" ])
+
+        [| Plotly.plot
+               [ plot.traces lines
+                 plot.layout
+                     [ layout.xaxis [ xaxis.title "Time interval" ]
+                       layout.yaxis [ yaxis.title "Adoptors" ]
+                       layout.title [ title.text "Adoption over time" ] ] ] |]
+
+
+
+
+
     let drawAdopterCharts () =
         let grids = records |> Seq.map (fun r -> r.GridId) |> Seq.distinct |> Seq.length
 
@@ -77,11 +103,9 @@ module PopulationTracker =
             |> Array.map (fun r -> r.Tick)
 
 
-        [| Plotly.plot [ plot.traces [ traces.histogram [ histogram.x counts; histogram.nbinsx 5 ] ] ] |]
+        [| Plotly.plot [ plot.traces [ traces.histogram [ histogram.x counts ] ] ] |]
 
     let drawCharts () =
-        drawAdopterCharts ()
+        drawCombinedChart ()
         |> Array.append (drawAdopterHist ())
         |> Store.set chartStore
-
-        drawAdopterHist () |> Store.set chartStore
