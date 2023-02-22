@@ -1,6 +1,7 @@
 
 ## Product Adoption Simulation
 Rough simulation to illustrate the concept. 
+View it [here](https://harrymccarney.github.io/ProductAdoptionSim/) 
 
 You are launching a new product and want to know how much to spend on marketing.
 
