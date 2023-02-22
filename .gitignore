@@ -7,3 +7,5 @@ package-lock.json
 *.fs.js
 .fake
 .ionide
+.vscode/settings.json
+public/bundle.js
