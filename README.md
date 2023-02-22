@@ -1,5 +1,5 @@
 
-## Product Adoption
+## Product Adoption Simulation
 Rough simulation to illustrate the concept. 
 
 You are launching a new product and want to know how much to spend on marketing.
