@@ -4,7 +4,6 @@ node_modules
 [Oo]bj/
 
 package-lock.json
-bundle.js
 *.fs.js
 .fake
 .ionide
