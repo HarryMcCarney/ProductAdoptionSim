@@ -9,6 +9,7 @@ module Main =
     open Sutil.DomHelpers
 
 
+
     let grids =
         let divs =
             Html.div
@@ -17,7 +18,6 @@ module Main =
                   Bind.el (peopleStore, (fun ps -> generateGrid (getState "rowCount") (getState "colCount") ps)) ]
 
         Html.div divs
-
 
     Html.div
         [ Attr.style [ Css.marginLeft 5; Css.marginRight 5 ]

@@ -12,10 +12,11 @@ module State =
             [ "colCount", 5
               "rowCount", 5
               "peopleCount", 100
-              "adoptorStartCount", 0
+              "adoptorStartCount", 7
+              "peerPreasureThreshold", 3
               "running", 0
               "ticks", 0
-              "numnerSimulations", 12 ]
+              "numberSimulations", 12 ]
 
     let stateStore = Store.make (Init())
 
@@ -52,12 +53,14 @@ module Population =
     let rec initalisePopulation (grids: array<Grid>) (reqGrids: int) noPeople adoptorStartCount columns rows : Grid[] =
         let gridId = ((grids |> Array.length) + 1) |> GridId
 
+        let adoptors = getState "adoptorStartCount"
+
         if gId gridId <= reqGrids then
             let results =
                 [| 1..noPeople |]
                 |> Array.map (fun x ->
                     { Coordinates = rnd.Next(1, rows + 1), rnd.Next(1, columns + 1)
-                      Status = Prospect })
+                      Status = (if x < adoptors then Adoptor else Prospect) })
                 |> fun p -> gridId, p
                 |> fun a -> grids |> Array.append [| a |]
 
@@ -72,7 +75,7 @@ module Population =
         let rowCount = getState "rowCount"
 
         Store.make (
-            initalisePopulation [||] (getState "numnerSimulations") peopleCount adoptorStartCount colCount rowCount
+            initalisePopulation [||] (getState "numberSimulations") peopleCount adoptorStartCount colCount rowCount
         )
 
     let fetchPeople (people: array<Person>) r c =
@@ -175,7 +178,7 @@ module Population =
 
         Store.set
             peopleStore
-            (initalisePopulation [||] (getState "numnerSimulations") peopleCount adoptorStartCount colCount rowCount)
+            (initalisePopulation [||] (getState "numberSimulations") peopleCount adoptorStartCount colCount rowCount)
 
     let setPopulationSize i =
         stopSimulation stateStore
@@ -186,7 +189,7 @@ module Population =
 
         Store.set
             peopleStore
-            (initalisePopulation [||] (getState "numnerSimulations") peopleCount adoptorStartCount colCount rowCount)
+            (initalisePopulation [||] (getState "numberSimulations") peopleCount adoptorStartCount colCount rowCount)
 
     let setPeerPreasureThreshold (state: IStore<Map<string, int>>) threshold =
         stopSimulation stateStore
@@ -198,4 +201,4 @@ module Population =
     let setNumberSimulations (state: IStore<Map<string, int>>) i =
         stopSimulation stateStore
 
-        state <~= (fun m -> m.Change("numnerSimulations", (fun _ -> Some i)))
+        state <~= (fun m -> m.Change("numberSimulations", (fun _ -> Some i)))

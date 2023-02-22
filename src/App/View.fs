@@ -46,9 +46,11 @@ module View =
                         [ Html.input
                               [ type' "number"
                                 Bind.attr ("value", (fun (i) -> setNumberSimulations stateStore i))
-                                Attr.min 0
-                                Attr.max 100 ]
-                          Attr.style [ Css.marginTop (rem 1); Css.marginRight (rem 1) ]
+                                Attr.min 1
+                                Attr.max 12
+                                Attr.value 12
+                                Attr.style [ Css.marginTop (em 1); Css.marginRight (em 1) ] ]
+                          Attr.style [ Css.marginRight (em 1) ]
                           prop.text "Number of simulations" ] ]
 
               Html.div
@@ -58,8 +60,10 @@ module View =
                               [ type' "number"
                                 Bind.attr ("value", (fun (i) -> setPeerPreasureThreshold stateStore i))
                                 Attr.min 0
-                                Attr.max 100 ]
-                          Attr.style [ Css.marginTop (rem 1); Css.marginRight (rem 1) ]
+                                Attr.max 100
+                                Attr.value 3
+                                Attr.style [ Css.marginRight (em 1) ] ]
+                          Attr.style [ Css.marginRight (em 1) ]
                           prop.text "Peer Presure Threshold" ] ]
 
               Html.div
@@ -69,8 +73,10 @@ module View =
                               [ type' "number"
                                 Bind.attr ("value", (fun (i) -> setPopulationSize i))
                                 Attr.min 0
-                                Attr.max 100 ]
-                          Attr.style [ Css.marginTop (rem 1); Css.marginRight (rem 1) ]
+                                Attr.max 100
+                                Attr.value 100
+                                Attr.style [ Css.marginRight (em 1) ] ]
+                          Attr.style [ Css.marginRight (em 1) ]
                           prop.text "Population size" ] ]
 
               Html.div
@@ -80,8 +86,10 @@ module View =
                               [ type' "number"
                                 Bind.attr ("value", (fun (i) -> setMarketingSpend stateStore i))
                                 Attr.min 0
-                                Attr.max 100 ]
-
+                                Attr.max 100
+                                Attr.value 7
+                                Attr.style [ Css.marginRight (em 1) ] ]
+                          Attr.style [ Css.marginRight (em 1) ]
                           prop.text "Marketing spend" ] ]
 
               Bind.el (
