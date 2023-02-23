@@ -93,9 +93,9 @@ module View =
                           prop.text "Marketing spend" ] ]
 
               Bind.el (
-                  stateStore |> Store.mapDistinct (fun sw -> sw["running"]),
+                  stateStore |> Store.mapDistinct (fun sw -> sw.Running),
                   fun isRunning ->
-                      if (isRunning = 1) then
+                      if (isRunning = true) then
                           Html.button
                               [ Attr.className "button"
                                 Attr.style [ Css.marginTop (rem 1); Css.marginRight (rem 1) ]
@@ -116,7 +116,7 @@ module View =
                     prop.text "Reset"
                     Ev.onClick (fun _ -> resetSimulation stateStore)
                     Bulma.color.isDark ]
-              Html.div [ Bind.el (stateStore, (fun t -> string t["ticks"] |> prop.text)) ]
+              Html.div [ Bind.el (stateStore, (fun t -> string t.Ticks |> prop.text)) ]
 
               ]
 

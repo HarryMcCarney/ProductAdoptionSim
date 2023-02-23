@@ -5,28 +5,43 @@ module State =
     open System
     open Sutil
 
+    type Model =
+        { ColCount: int
+          RowCount: int
+          PeopleCount: int
+          AdoptorStartCount: int
+          PeerPreasureThreshold: int
+          Running: bool
+          Ticks: int
+          NumberSimulations: int
+          Id: Guid }
+
     let rnd = new Random()
 
     let Init () =
-        Map
-            [ "colCount", 5
-              "rowCount", 5
-              "peopleCount", 100
-              "adoptorStartCount", 7
-              "peerPreasureThreshold", 3
-              "running", 0
-              "ticks", 0
-              "numberSimulations", 12 ]
+        printfn "inti called "
+
+        { ColCount = 5
+          RowCount = 5
+          PeopleCount = 100
+          AdoptorStartCount = 7
+          PeerPreasureThreshold = 3
+          Running = false
+          Ticks = 0
+          NumberSimulations = 12
+          Id = Guid.NewGuid() }
 
     let stateStore = Store.make (Init())
 
-    let getState k = (Store.get stateStore)[k]
+    let getState = Store.get stateStore
 
-    let startSimulation (state: IStore<Map<string, int>>) =
-        state <~= (fun m -> m.Change("running", (fun _ -> Some 1)))
+    let startSimulation (state: IStore<Model>) =
+        printfn "before setting %A" state
+        state <~= (fun m -> { m with Running = true })
+        printfn "after setting %A" state
 
-    let stopSimulation (state: IStore<Map<string, int>>) =
-        state <~= (fun m -> m.Change("running", (fun _ -> Some 0)))
+    let stopSimulation (state: IStore<Model>) =
+        state <~= (fun m -> { m with Running = false })
 
 
 module Population =
@@ -53,7 +68,7 @@ module Population =
     let rec initalisePopulation (grids: array<Grid>) (reqGrids: int) noPeople adoptorStartCount columns rows : Grid[] =
         let gridId = ((grids |> Array.length) + 1) |> GridId
 
-        let adoptors = getState "adoptorStartCount"
+        let adoptors = getState.AdoptorStartCount
 
         if gId gridId <= reqGrids then
             let results =
@@ -69,13 +84,13 @@ module Population =
             grids
 
     let peopleStore =
-        let peopleCount = getState "peopleCount"
-        let adoptorStartCount = getState "adoptorStartCount"
-        let colCount = getState "colCount"
-        let rowCount = getState "rowCount"
+        let peopleCount = getState.PeopleCount
+        let adoptorStartCount = getState.AdoptorStartCount
+        let colCount = getState.ColCount
+        let rowCount = getState.RowCount
 
         Store.make (
-            initalisePopulation [||] (getState "numberSimulations") peopleCount adoptorStartCount colCount rowCount
+            initalisePopulation [||] (getState.NumberSimulations) peopleCount adoptorStartCount colCount rowCount
         )
 
     let fetchPeople (people: array<Person>) r c =
@@ -89,7 +104,7 @@ module Population =
             false
 
     let convertAdoptors (people: array<Person>) : array<Person> =
-        let threshold = getState "peerPreasureThreshold"
+        let threshold = getState.PeerPreasureThreshold
 
         people
         |> Array.groupBy (fun x -> x.Coordinates)
@@ -120,7 +135,7 @@ module Population =
                   Coordinates = x.Coordinates }))
 
     let updatePopulations rows columns (grids: array<Grid>) =
-        let tick = getState "ticks"
+        let tick = getState.Ticks
 
         grids |> convertToTrackingObject |> logPeople tick |> ignore
 
@@ -138,19 +153,22 @@ module Population =
             drawCharts ()
 
     let updateStore () =
+        printfn "start of update %A" getState
+
         Store.set
             peopleStore
             (stopIfComplete (Store.get peopleStore) stateStore
 
-             if ((Store.get stateStore)["running"] = 1) then
-                 let t = (Store.get stateStore)["ticks"] + 1
-                 stateStore <~= (fun m -> m.Change("ticks", (fun _ -> Some t)))
-                 updatePopulations (getState "rowCount") (getState "colCount") (Store.get peopleStore)
+             if (getState.Running = true) then
+                 let t = getState.Ticks + 1
+                 printfn "ticks: %i" t
+                 stateStore <~= (fun m -> { m with Ticks = t })
+                 updatePopulations (getState.RowCount) (getState.ColCount) (Store.get peopleStore)
              else
                  (Store.get peopleStore))
 
-    let setMarketingSpend (state: IStore<Map<string, int>>) adoptors =
-        state <~= (fun m -> m.Change("adoptorStartCount", (fun _ -> Some adoptors)))
+    let setMarketingSpend (state: IStore<Model>) adoptors =
+        state <~= (fun m -> { m with AdoptorStartCount = adoptors })
 
         peopleStore
         <~= (fun ps ->
@@ -166,39 +184,41 @@ module Population =
                         p)))
 
 
-    let resetSimulation (state: IStore<Map<string, int>>) =
+    let resetSimulation (state: IStore<Model>) =
         stopSimulation state
         state <~= (fun m -> State.Init())
         records.Clear()
         Store.set chartStore (PopulationTracker.Init())
-        let peopleCount = getState "peopleCount"
-        let adoptorStartCount = getState "adoptorStartCount"
-        let colCount = getState "colCount"
-        let rowCount = getState "rowCount"
+        let peopleCount = getState.PeopleCount
+        let adoptorStartCount = getState.AdoptorStartCount
+        let colCount = getState.ColCount
+        let rowCount = getState.RowCount
 
         Store.set
             peopleStore
-            (initalisePopulation [||] (getState "numberSimulations") peopleCount adoptorStartCount colCount rowCount)
+            (initalisePopulation [||] (getState.NumberSimulations) peopleCount adoptorStartCount colCount rowCount)
 
     let setPopulationSize i =
         stopSimulation stateStore
         let peopleCount = i
-        let adoptorStartCount = getState "adoptorStartCount"
-        let colCount = getState "colCount"
-        let rowCount = getState "rowCount"
+        let adoptorStartCount = getState.AdoptorStartCount
+        let colCount = getState.ColCount
+        let rowCount = getState.RowCount
 
         Store.set
             peopleStore
-            (initalisePopulation [||] (getState "numberSimulations") peopleCount adoptorStartCount colCount rowCount)
+            (initalisePopulation [||] (getState.NumberSimulations) peopleCount adoptorStartCount colCount rowCount)
 
-    let setPeerPreasureThreshold (state: IStore<Map<string, int>>) threshold =
-        stopSimulation stateStore
+    let setPeerPreasureThreshold (state: IStore<Model>) threshold =
+        stopSimulation state
 
         state
-        <~= (fun m -> m.Change("peerPreasureThreshold", (fun _ -> Some threshold)))
+        <~= (fun m ->
+            { m with
+                PeerPreasureThreshold = threshold })
 
 
-    let setNumberSimulations (state: IStore<Map<string, int>>) i =
-        stopSimulation stateStore
+    let setNumberSimulations (state: IStore<Model>) i =
+        stopSimulation state
 
-        state <~= (fun m -> m.Change("numberSimulations", (fun _ -> Some i)))
+        state <~= (fun m -> { m with NumberSimulations = i })

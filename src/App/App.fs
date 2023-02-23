@@ -15,7 +15,7 @@ module Main =
             Html.div
                 [ Attr.style "display: flex"
                   unsubscribeOnUnmount [ interval updateStore 500 ]
-                  Bind.el (peopleStore, (fun ps -> generateGrid (getState "rowCount") (getState "colCount") ps)) ]
+                  Bind.el (peopleStore, (fun ps -> generateGrid (getState.RowCount) (getState.ColCount) ps)) ]
 
         Html.div divs
 
