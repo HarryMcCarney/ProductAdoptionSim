@@ -33,7 +33,7 @@ module State =
 
     let stateStore = Store.make (Init())
 
-    let getState = Store.get stateStore
+    let getState () = Store.get stateStore
 
     let startSimulation (state: IStore<Model>) =
         printfn "before setting %A" state
@@ -68,7 +68,7 @@ module Population =
     let rec initalisePopulation (grids: array<Grid>) (reqGrids: int) noPeople adoptorStartCount columns rows : Grid[] =
         let gridId = ((grids |> Array.length) + 1) |> GridId
 
-        let adoptors = getState.AdoptorStartCount
+        let adoptors = getState().AdoptorStartCount
 
         if gId gridId <= reqGrids then
             let results =
@@ -84,13 +84,13 @@ module Population =
             grids
 
     let peopleStore =
-        let peopleCount = getState.PeopleCount
-        let adoptorStartCount = getState.AdoptorStartCount
-        let colCount = getState.ColCount
-        let rowCount = getState.RowCount
+        let peopleCount = getState().PeopleCount
+        let adoptorStartCount = getState().AdoptorStartCount
+        let colCount = getState().ColCount
+        let rowCount = getState().RowCount
 
         Store.make (
-            initalisePopulation [||] (getState.NumberSimulations) peopleCount adoptorStartCount colCount rowCount
+            initalisePopulation [||] (getState().NumberSimulations) peopleCount adoptorStartCount colCount rowCount
         )
 
     let fetchPeople (people: array<Person>) r c =
@@ -104,7 +104,7 @@ module Population =
             false
 
     let convertAdoptors (people: array<Person>) : array<Person> =
-        let threshold = getState.PeerPreasureThreshold
+        let threshold = getState().PeerPreasureThreshold
 
         people
         |> Array.groupBy (fun x -> x.Coordinates)
@@ -135,7 +135,7 @@ module Population =
                   Coordinates = x.Coordinates }))
 
     let updatePopulations rows columns (grids: array<Grid>) =
-        let tick = getState.Ticks
+        let tick = getState().Ticks
 
         grids |> convertToTrackingObject |> logPeople tick |> ignore
 
@@ -159,11 +159,11 @@ module Population =
             peopleStore
             (stopIfComplete (Store.get peopleStore) stateStore
 
-             if (getState.Running = true) then
-                 let t = getState.Ticks + 1
+             if (getState().Running = true) then
+                 let t = getState().Ticks + 1
                  printfn "ticks: %i" t
                  stateStore <~= (fun m -> { m with Ticks = t })
-                 updatePopulations (getState.RowCount) (getState.ColCount) (Store.get peopleStore)
+                 updatePopulations (getState().RowCount) (getState().ColCount) (Store.get peopleStore)
              else
                  (Store.get peopleStore))
 
@@ -189,25 +189,25 @@ module Population =
         state <~= (fun m -> State.Init())
         records.Clear()
         Store.set chartStore (PopulationTracker.Init())
-        let peopleCount = getState.PeopleCount
-        let adoptorStartCount = getState.AdoptorStartCount
-        let colCount = getState.ColCount
-        let rowCount = getState.RowCount
+        let peopleCount = getState().PeopleCount
+        let adoptorStartCount = getState().AdoptorStartCount
+        let colCount = getState().ColCount
+        let rowCount = getState().RowCount
 
         Store.set
             peopleStore
-            (initalisePopulation [||] (getState.NumberSimulations) peopleCount adoptorStartCount colCount rowCount)
+            (initalisePopulation [||] (getState().NumberSimulations) peopleCount adoptorStartCount colCount rowCount)
 
     let setPopulationSize i =
         stopSimulation stateStore
         let peopleCount = i
-        let adoptorStartCount = getState.AdoptorStartCount
-        let colCount = getState.ColCount
-        let rowCount = getState.RowCount
+        let adoptorStartCount = getState().AdoptorStartCount
+        let colCount = getState().ColCount
+        let rowCount = getState().RowCount
 
         Store.set
             peopleStore
-            (initalisePopulation [||] (getState.NumberSimulations) peopleCount adoptorStartCount colCount rowCount)
+            (initalisePopulation [||] (getState().NumberSimulations) peopleCount adoptorStartCount colCount rowCount)
 
     let setPeerPreasureThreshold (state: IStore<Model>) threshold =
         stopSimulation state
